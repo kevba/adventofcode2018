@@ -12,9 +12,9 @@ func main() {
 	freq := 0
 	reachedFreqs := []int{0}
 
+	start := time.Now()
 	inputs := getInputSlice()
 
-	start := time.Now()
 	iterations := 0
 	for {
 		for i := 0; i < len(inputs); i++ {
