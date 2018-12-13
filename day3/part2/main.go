@@ -18,6 +18,9 @@ func main() {
 	}
 
 	for _, claim := range claims {
+		if claim.hasOverlap {
+			continue
+		}
 		for _, otherClaim := range claims {
 			claim.overlapsWith(otherClaim)
 		}
