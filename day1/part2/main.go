@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 )
 
 func main() {
@@ -13,17 +14,19 @@ func main() {
 
 	inputs := getInputSlice()
 
+	start := time.Now()
+	iterations := 0
 	for {
 		for i := 0; i < len(inputs); i++ {
 			freq = freq + inputs[i]
 			if isDuplicate(reachedFreqs, freq) {
-				log.Println("found duplicate")
-				log.Println(freq)
+				log.Printf("found duplicate (%v) after iterations: %v", freq, iterations)
+				log.Printf("took:  %v", time.Since(start))
 				return
 			}
 			reachedFreqs = append(reachedFreqs, freq)
 		}
-		log.Println("resetting loop")
+		iterations++
 	}
 
 }
