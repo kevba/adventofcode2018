@@ -7,17 +7,13 @@ func TestReduce(t *testing.T) {
 		in       string
 		expected string
 	}{
-		{"a", "a"},
-		{"aA", ""},
-		{"aa", "aa"},
-		{"aaa", "aaa"},
-		{"Aa", ""},
-		{"AaAaAaAaAaAaAa", ""},
-		{"abba", "abba"},
-		{"aBba", "aa"},
-		{"aBbBa", "aBa"},
-		{"ABba", ""},
-		{"cABbaC", ""},
+		{"dbcCCBcCcD", "dbCBcD"},
+		{"daAcCaCAcCcaDA", "daCAcaDA"},
+		{"dabAaBAaDA", "daDA"},
+		{"abAcCaCBAcCcaA", "abCBAc"},
+		{"dabAcCaCBAcCcaDA", "dabCBAcaDA"},
+		{"dDabAcCaCBAcCcaDA", "abCBAcaDA"},
+		{"dabAcCaCBAcCcaDAa", "dabCBAcaD"},
 	}
 
 	for i, test := range tests {
