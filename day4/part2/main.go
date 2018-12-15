@@ -17,19 +17,21 @@ func main() {
 	}()
 
 	guards := getGuards()
+
 	var mostSleepGuard *Guard
+	minMost := -1
+	occurance := -1
 
 	for _, g := range guards {
-		if mostSleepGuard == nil {
+		m, occ := g.MostSleptMinute()
+		if occ > occurance {
+			minMost = m
 			mostSleepGuard = g
-		} else if g.TotalSleepMins() > mostSleepGuard.TotalSleepMins() {
-			mostSleepGuard = g
+			occurance = occ
 		}
 	}
 
-	minMost := mostSleepGuard.MostSleptMinute()
-
-	log.Printf("Guard: %v, Minute slept the most: %v", mostSleepGuard.id, minMost)
+	log.Printf("Guard: %v, Minute: %v occured %v times", mostSleepGuard.id, minMost, occurance)
 	log.Printf("awnser: %v", mostSleepGuard.id*minMost)
 }
 
@@ -55,6 +57,12 @@ type Guard struct {
 	sleepMinutes []int
 }
 
+func newGuard(id int) *Guard {
+	return &Guard{
+		id: id,
+	}
+}
+
 func (g *Guard) AddSleep(from, to int) {
 	for i := from; i < to; i++ {
 		g.sleepMinutes = append(g.sleepMinutes, i)
@@ -65,7 +73,7 @@ func (g *Guard) TotalSleepMins() int {
 	return len(g.sleepMinutes)
 }
 
-func (g *Guard) MostSleptMinute() int {
+func (g *Guard) MostSleptMinute() (int, int) {
 	occurances := map[int]int{}
 	for _, m := range g.sleepMinutes {
 		if o, ok := occurances[m]; ok {
@@ -85,7 +93,7 @@ func (g *Guard) MostSleptMinute() int {
 		}
 	}
 
-	return mostMin
+	return mostMin, mostOcc
 }
 
 func getGuards() map[int]*Guard {
@@ -102,7 +110,7 @@ func getGuards() map[int]*Guard {
 			if g, ok := guards[guardID]; ok {
 				currentGuard = g
 			} else {
-				guards[guardID] = &Guard{id: guardID}
+				guards[guardID] = newGuard(guardID)
 				currentGuard = guards[guardID]
 			}
 		} else {
