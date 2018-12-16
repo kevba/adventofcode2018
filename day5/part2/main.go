@@ -19,12 +19,11 @@ func main() {
 
 	resChan := make(chan int)
 	for _, c := range units {
-		oc := c
+		cc := c
 
 		go func() {
-			stripped := stripBytes(input, byte(oc))
-			output := reduce(stripped)
-			resChan <- len(output)
+			stripped := stripBytes(input, byte(cc))
+			resChan <- len(reduce(stripped))
 		}()
 	}
 
@@ -67,32 +66,36 @@ func waitForResults(resChan chan int) []int {
 func getInput() []byte {
 	file, _ := os.Open("input.txt")
 	r, _ := ioutil.ReadAll(file)
-	return r
+
+	return r[:len(r)-1]
 }
 
 func reduce(s []byte) []byte {
 	new := []byte{}
 
-	reactions := 0
-	for i := 0; i < len(s); i++ {
-		c := s[i]
-		if i+1 > len(s)-1 {
-			new = append(new, c)
-			// Stop the loop because there is no next value to compare against
+	for {
+		if len(s) == 0 {
 			break
 		}
-		next := s[i+1]
-		if c-32 == next || c+32 == next {
-			reactions++
-			i++
+		next := s[0]
+		s = s[1:]
 
+		if len(new) == 0 {
+			new = append(new, next)
 			continue
 		}
-		new = append(new, c)
+		prev := new[len(new)-1]
+
+		if prev+32 == next || prev-32 == next {
+			if len(new) == 1 {
+				new = []byte{}
+			} else {
+				new = new[:len(new)-1]
+			}
+		} else {
+			new = append(new, next)
+		}
 	}
 
-	if reactions != 0 {
-		return reduce(new)
-	}
 	return new
 }
