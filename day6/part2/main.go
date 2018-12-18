@@ -22,41 +22,19 @@ func main() {
 
 	input = applyOffset(a.xMin, a.yMin, input)
 
-	for x, ySlice := range a.area {
-		for y := range ySlice {
-			id := a.findClosest(x, y, input)
-			ySlice[y] = id
-		}
-	}
+	a.markAllWithingZone(input, 10000)
 
-	infIDs := a.findInfiniteIDs()
-
-	idOccurance := map[int]int{}
-	for i := range input {
-		idOccurance[i] = 0
-	}
+	zoneSize := 0
 
 	for _, ySlice := range a.area {
-		for _, id := range ySlice {
-			if id == -1 {
-				continue
+		for _, count := range ySlice {
+			if count == 1 {
+				zoneSize++
 			}
-
-			if isIn(id, infIDs) {
-				continue
-			}
-			idOccurance[id] = idOccurance[id] + 1
 		}
 	}
 
-	var max int
-	for _, occ := range idOccurance {
-		if occ > max {
-			max = occ
-		}
-	}
-
-	log.Printf("answer: %v", max)
+	log.Printf("answer: %v", zoneSize)
 }
 
 func getInput() [][]int {
@@ -70,8 +48,8 @@ func getInput() [][]int {
 			break
 		}
 		coords := strings.Split(string(l), ", ")
-		x, _ := strconv.Atoi(coords[0])
-		y, _ := strconv.Atoi(coords[1])
+		y, _ := strconv.Atoi(coords[0])
+		x, _ := strconv.Atoi(coords[1])
 		inputs = append(inputs, []int{x, y})
 	}
 
@@ -132,49 +110,23 @@ func newAreaHelper(input [][]int) *areaHelper {
 	}
 }
 
-func (a *areaHelper) findClosest(x, y int, coords [][]int) int {
-	closestDist := -1
-	closestID := -2
-
-	for id, c := range coords {
-		xDist := getDistance(x, c[0])
-		yDist := getDistance(y, c[1])
-		totalDist := xDist + yDist
-		if totalDist == closestDist {
-			closestID = multipleClosest
-		} else if totalDist < closestDist || closestID == -2 {
-			closestDist = totalDist
-			closestID = id
+func (a *areaHelper) markAllWithingZone(coords [][]int, maxDist int) {
+	for x, ySlice := range a.area {
+		for y := range ySlice {
+			totalDist := 0
+			allCoords := true
+			for _, c := range coords {
+				totalDist = totalDist + getDistance(x, c[0]) + getDistance(y, c[1])
+				if totalDist >= maxDist {
+					allCoords = false
+					break
+				}
+			}
+			if allCoords {
+				ySlice[y] = 1
+			}
 		}
 	}
-
-	return closestID
-}
-
-func (a *areaHelper) findInfiniteIDs() []int {
-	infIDs := map[int]struct{}{}
-
-	for _, id := range a.area[0] {
-		infIDs[id] = struct{}{}
-	}
-
-	for _, id := range a.area[len(a.area)-1] {
-		infIDs[id] = struct{}{}
-	}
-
-	for _, ySlice := range a.area {
-		infIDs[ySlice[0]] = struct{}{}
-		infIDs[ySlice[len(ySlice)-1]] = struct{}{}
-	}
-
-	infIDSlice := []int{}
-	for id := range infIDs {
-		if id != multipleClosest {
-			infIDSlice = append(infIDSlice, id)
-		}
-	}
-
-	return infIDSlice
 }
 
 func getDistance(from, to int) int {
